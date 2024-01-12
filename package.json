@@ -1,0 +1,35 @@
+{
+  "name": "postgres-api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "jest"
+  },
+  "jest": {
+    "globalSetup": "./tests/setup.js",
+    "globalTeardown": "./tests/teardown.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@froyo-api/constants": "file:constants",
+    "archiver": "^5.3.1",
+    "argon2": "^0.28.3",
+    "aws-sdk": "^2.1069.0",
+    "axios": "^0.27.2",
+    "dotenv": "^10.0.0",
+    "expo-server-sdk": "^3.6.0",
+    "express": "^4.17.1",
+    "jest": "^28.1.0",
+    "jsonwebtoken": "^8.5.1",
+    "multer": "^1.4.5-lts.1",
+    "nodemailer": "^6.7.2",
+    "pg": "^8.7.1",
+    "pug": "^3.0.2",
+    "socket.io": "^4.5.1",
+    "supertest": "^6.2.3"
+  }
+}
