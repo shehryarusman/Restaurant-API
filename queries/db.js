@@ -7,10 +7,10 @@ const pool = new Pool(process.env.NODE_ENV === 'production' ? {
     password: process.env.RDS_PASSWORD,
     port: process.env.RDS_PORT,
 } : {
-    user: 'postgres',
-    host: 'localhost',
-    database: 'restaurantapp',
-    password: '',
+    user: process.env.DB_USER,
+    host: process.env.DB_HOST,
+    database: process.env.DB_NAME,
+    password: process.env.DB_PASSWORD,
     port: 5432,
 });
 
