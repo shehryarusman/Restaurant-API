@@ -206,7 +206,6 @@ ALTER TABLE public.users OWNER TO postgres;
 COPY public.chat_membership (id, user_id, chat_id, "timestamp") FROM stdin;
 56c8dc45-ce88-4ba8-88fc-893ada5f90a6	6fd91f16-db4f-4064-bab4-cb0d45104462	a4c4cf77-07ee-4b93-81d3-9d8dcfedb720	2022-07-09
 952d7286-f8cd-4bde-bdd5-5b02f436697e	0a102be7-92a1-4d13-bfab-6ac15cbae4aa	a4c4cf77-07ee-4b93-81d3-9d8dcfedb720	2022-07-09
-\.
 
 
 --
@@ -214,8 +213,7 @@ COPY public.chat_membership (id, user_id, chat_id, "timestamp") FROM stdin;
 --
 
 COPY public.chats (id, title, "timestamp", expiration) FROM stdin;
-a4c4cf77-07ee-4b93-81d3-9d8dcfedb720		2022-07-09	\N
-\.
+a4c4cf77-07ee-4b93-81d3-9d8dcfedb720		2022-07-09
 
 
 --
@@ -225,7 +223,6 @@ a4c4cf77-07ee-4b93-81d3-9d8dcfedb720		2022-07-09	\N
 COPY public.comments (id, text, parent_id, author_id, "timestamp") FROM stdin;
 7276ea07-871c-4154-8217-fb372faf6bfd	That's flat	de96c979-5053-4050-8045-215776016512	0a102be7-92a1-4d13-bfab-6ac15cbae4aa	2021-12-30
 88c5fbd8-f7f9-4dbb-a529-7de5ca874594	Sdfsdf	de96c979-5053-4050-8045-215776016512	6fd91f16-db4f-4064-bab4-cb0d45104462	2022-06-16
-\.
 
 
 --
@@ -234,7 +231,6 @@ COPY public.comments (id, text, parent_id, author_id, "timestamp") FROM stdin;
 
 COPY public.connections (id, user_a_id, user_b_id, a_following_b, b_following_a, "timestamp") FROM stdin;
 c64e0dbe-5fb3-46c1-8964-83c79ff5f7f1	0a102be7-92a1-4d13-bfab-6ac15cbae4aa	6fd91f16-db4f-4064-bab4-cb0d45104462	t	t	2022-01-03
-\.
 
 
 --
