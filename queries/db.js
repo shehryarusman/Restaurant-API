@@ -9,7 +9,7 @@ const pool = new Pool(process.env.NODE_ENV === 'production' ? {
 } : {
     user: 'postgres',
     host: 'localhost',
-    database: 'RestaurantApp',
+    database: 'restaurantapp',
     password: '',
     port: 5432,
 });
