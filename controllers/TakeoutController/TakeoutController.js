@@ -1,6 +1,6 @@
 const Takeout = require('./Takeout');
 const fs = require('fs');
-const { getRootDirectory } = require('@froyo-api/constants');
+const { getRootDirectory } = require('@RestaurantApp-Api-api/constants');
 
 const getTakeout = async (req, res) => {
     /*const takeout = new Takeout(req);

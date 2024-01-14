@@ -2,7 +2,7 @@ const fs = require('fs');
 var archiver = require('archiver');
 const axios = require('axios');
 const queryDB = require('../../queries/queryDB');
-const { getRootDirectory, API_ENDPOINT } = require('@froyo-api/constants');
+const { getRootDirectory, API_ENDPOINT } = require('@RestaurantApp-Api-api/constants');
 
 class Takeout{
     constructor(req){

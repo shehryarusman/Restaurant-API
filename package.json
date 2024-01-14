@@ -15,7 +15,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@froyo-api/constants": "file:constants",
+    "@RestaurantApp-Api-api/constants": "file:constants",
     "archiver": "^5.3.1",
     "argon2": "^0.28.3",
     "aws-sdk": "^2.1069.0",

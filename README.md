@@ -1,2 +1,2 @@
-# Froyo-API
-This is the code for the Froyo API
+# RestaurantApp-Api-API
+This is the code for the RestaurantApp-Api API
