@@ -3,7 +3,4 @@
 node_modules/
 uploads/
 takeouts/
-# Elastic Beanstalk Files
-.elasticbeanstalk/*
-!.elasticbeanstalk/*.cfg.yml
-!.elasticbeanstalk/*.global.yml
+
