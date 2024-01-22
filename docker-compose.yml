@@ -4,7 +4,7 @@ services:
     container_name: restaurantapp_api
     build: .
     ports:
-      - "80:800"
+      - "80:80"
     environment:
       - NODE_ENV=production
       - DB_PORT
