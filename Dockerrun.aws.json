@@ -1,14 +1,39 @@
 {
-  "AWSEBDockerrunVersion": "1",
-  "Image": {
-    "Name": "730335546887.dkr.ecr.us-east-1.amazonaws.com/restaurant-app-api-image:latest",
-    "Update": "true"
-  },
-  "Ports": [
+  "AWSEBDockerrunVersion": 2,
+  "containerDefinitions": [
     {
-      "ContainerPort": "80",
-      "HostPort": "80"
+      "name": "restaurant-app-api",
+      "image": "730335546887.dkr.ecr.us-east-1.amazonaws.com/restaurant-app-api-image:latest",
+      "essential": true,
+      "memory": 512,
+      "environment": [
+        {
+          "name": "DB_USER",
+          "value": "postgres"
+        },
+        {
+          "name": "DB_HOST",
+          "value": "restaurant-app-test.cb4me4egwzp2.us-east-1.rds.amazonaws.com"
+        },
+        {
+          "name": "DB_NAME",
+          "value": "restaurant_app"
+        },
+        {
+          "name": "DB_PASSWORD",
+          "value": "WXB7IcEqmVpIJZkS9nli"
+        },
+        {
+          "name": "DB_PORT",
+          "value": "5432"
+        }
+      ],
+      "portMappings": [
+        {
+          "hostPort": 80,
+          "containerPort": 80
+        }
+      ]
     }
-  ],
-  "Logging": "/var/log/nginx"
+  ]
 }
