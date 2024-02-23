@@ -1,39 +1,34 @@
 {
   "AWSEBDockerrunVersion": "1",
-  "containerDefinitions": [
+  "Image": {
+    "Name": "730335546887.dkr.ecr.us-east-1.amazonaws.com/restaurant-app-api-image:latest",
+    "Update": "true"
+  },
+  "Ports": [
     {
-      "name": "restaurant-app-api",
-      "image": "730335546887.dkr.ecr.us-east-1.amazonaws.com/restaurant-app-api-image:latest",
-      "essential": true,
-      "memory": 512,
-      "environment": [
-        {
-          "name": "DB_USER",
-          "value": "postgres"
-        },
-        {
-          "name": "DB_HOST",
-          "value": "restaurant-app-test.cb4me4egwzp2.us-east-1.rds.amazonaws.com"
-        },
-        {
-          "name": "DB_NAME",
-          "value": "restaurant_app"
-        },
-        {
-          "name": "DB_PASSWORD",
-          "value": "WXB7IcEqmVpIJZkS9nli"
-        },
-        {
-          "name": "DB_PORT",
-          "value": "5432"
-        }
-      ],
-      "portMappings": [
-        {
-          "hostPort": 80,
-          "containerPort": 80
-        }
-      ]
+      "ContainerPort": "80"
+    }
+  ],
+  "Environment": [
+    {
+      "Name": "DB_USER",
+      "Value": "postgres"
+    },
+    {
+      "Name": "DB_HOST",
+      "Value": "restaurant-app-test.cb4me4egwzp2.us-east-1.rds.amazonaws.com"
+    },
+    {
+      "Name": "DB_NAME",
+      "Value": "restaurant_app"
+    },
+    {
+      "Name": "DB_PASSWORD",
+      "Value": "WXB7IcEqmVpIJZkS9nli"
+    },
+    {
+      "Name": "DB_PORT",
+      "Value": "5432"
     }
   ]
 }
