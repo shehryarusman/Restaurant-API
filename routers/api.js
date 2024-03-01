@@ -14,15 +14,10 @@ const recsRouter = require('./api/recs');
 const requireAuth = require('../middleware/requireAuth');
 const getTargetResource = require('../middleware/getTargetResource');
 
-const router = Router();
+// Testing
+const pool = require('../queries/db');
 
-const pool = new Pool({
-    user: process.env.DB_USER,
-    host: process.env.DB_HOST,
-    database: process.env.DB_NAME,
-    password: process.env.DB_PASSWORD,
-    port: process.env.DB_PORT,
-  });
+const router = Router();
 
 router.get('/', requireAuth, (req, res) => {
     res.status(200).send(req.user.id);
