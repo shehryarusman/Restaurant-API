@@ -4,13 +4,9 @@ const util = require('util');
 
 const bucketName = process.env.AWS_BUCKET_NAME;
 const region = process.env.AWS_BUCKET_REGION;
-const publicAccessKey = process.env.AWS_BUCKET_PUBLIC_ACCESS_KEY;
-const privateAccessKey = process.env.AWS_BUCKET_PRIVATE_ACCESS_KEY;
 
 const s3 = new S3({
     region: region,
-    accessKeyId: publicAccessKey,
-    secretAccessKey: privateAccessKey
 });
 
 // Uploads a file to S3

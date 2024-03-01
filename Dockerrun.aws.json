@@ -29,6 +29,14 @@
     {
       "Name": "DB_PORT",
       "Value": "5432"
+    },
+    {
+      "Name": "AWS_BUCKET_NAME",
+      "Value": ""
+    },
+    {
+      "Name": "AWS_BUCKET_REGION",
+      "Value": ""
     }
   ]
 }
