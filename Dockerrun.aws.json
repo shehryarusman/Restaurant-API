@@ -37,6 +37,10 @@
     {
       "Name": "AWS_BUCKET_REGION",
       "Value": "us-east-1"
+    },
+    {
+      "Name": "Token_Key",
+      "Value": "f862971dd1c7c1f4e80d919af8b51715d06f0b6334419d4d2585ba3fbbf8cf0fc2b1ac7fcbf03e0be6c515bf5a4dc0cefede28f67f6bdad039eaa286b032a7fe"
     }
   ]
 }
