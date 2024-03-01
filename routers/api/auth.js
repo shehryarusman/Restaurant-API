@@ -1,20 +1,16 @@
 const { Router } = require('express');
 const {
     login,
-    logout,
+    verify,
     validateParameter,
-    sendResetPasswordEmail,
-    resetPassword,
-    renderResetPassword
+    register
 } = require('../../controllers/AuthController');
 
 const router = Router();
 
 router.post('/login', login);
-router.post('/logout', logout);
+router.post('/verify', verify);
 router.get('/validateParameter/:parameter/:value', validateParameter);
-router.put('/resetPassword', sendResetPasswordEmail);
-router.put('/reset/:token', resetPassword);
-router.get('/reset/:token', renderResetPassword);
+router.post('/register/:userId', register);
 
 module.exports = router;

@@ -12,7 +12,6 @@ const { invalidUser } = require('../helpers/validators');
 const { isFollower, isFollowee } = require('../queries/getters/helpers/followStatus');
 const followUser = require('../queries/putters/followUser');
 const getUserConnections = require('../queries/getters/getConnections');
-const postNotificationToken = require('../notifications/postNotificationToken');
 const { deleteContent } = require('../controllers/ContentsController');
 
 const queryUsers = async (req, res) => {
@@ -47,8 +46,7 @@ const createUser = async (req, res) => {
         dob=null,
         first_name=null,
         last_name=null,
-        password=null,
-        notificationToken=null
+        password=null
     } = req.body;
 
     // Check that all required fields are present
@@ -90,9 +88,6 @@ const createUser = async (req, res) => {
 
     // Get the newly created user
     const [ user ] = await queryDB('users', 'get', { where: ['email'] }, [email]);
-
-    // Store the user's notification token in the database
-    await postNotificationToken(user.id, notificationToken);
 
     // Generate JWT token and attach to response header
     const token = jwt.sign({ userId: user.id }, process.env.TOKEN_KEY);

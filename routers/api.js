@@ -3,12 +3,10 @@ const { Router } = require('express');
 const authRouter = require('./api/auth');
 const usersRouter = require('./api/users');
 const imagesRouter = require('./api/images');
-const takeoutRouter = require('./api/takeout');
 const feedRouter = require('./api/feed');
 const postsRouter = require('./api/posts');
 const commentsRouter = require('./api/comments');
 const contentsRouter = require('./api/contents');
-const chatsRouter = require('./api/chats');
 const recsRouter = require('./api/recs');
 // Middleware
 const requireAuth = require('../middleware/requireAuth');
@@ -29,12 +27,10 @@ router.use(getTargetResource);
 router.use('/auth', authRouter);
 router.use('/users', usersRouter);
 router.use('/images', imagesRouter);
-router.use('/takeout', requireAuth, takeoutRouter);
 router.use('/feed', requireAuth, feedRouter);
 router.use('/posts', requireAuth, contentsRouter, postsRouter);
 router.use('/comments', requireAuth, contentsRouter, commentsRouter);
 router.use('/contents', requireAuth, contentsRouter);
-router.use('/chats', requireAuth, chatsRouter);
 router.use('/recs', recsRouter);
 router.use((err, req, res, next) => {
     if(err) return res.status(err.status || 500).send(err.message);

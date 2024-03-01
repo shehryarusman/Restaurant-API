@@ -1,73 +1,82 @@
-const argon2 = require('argon2');
 const jwt = require('jsonwebtoken');
-const crypto = require('crypto');
 const queryDB = require('../queries/queryDB');
 const pool = require('../queries/db');
 const { validEmail, validUsername } = require('../helpers/validators');
 // Email Automation
-const { sendAutomatedEmail } = require('../helpers/email');
-// Email Templates
-const resetPasswordTemplate = require('../emailTemplates/resetPassword');
-const resetPasswordConfirmationTemplate = require('../emailTemplates/resetPasswordConfirmation');
-// Notifications
-const postNotificationToken = require('../notifications/postNotificationToken');
-const deleteNotificationToken = require('../notifications/deleteNotificationToken');
+const { ayodaTransporter } = require('../helpers/email');
 
 // Get a authentication token given email and password
 // POST /login
 const login = async (req, res) => {
     const {
-        email=null,
-        password: passwordAttempt=null,
-        notificationToken=null
+        email=null
     } = req.body;
 
-    // Confirm that email and password aren't empty
+    // Confirm that email isn't empty
     switch (null){
         case email:
-            return res.status(422).send('Must provide email');
-        case passwordAttempt:
-            return res.status(422).send('Must provide password');
+            return res.status(422).send("Must provide email");
     }
 
     // Check that email is formatted properly
-    if(!validEmail(email)) return res.status(422).send('Not a valid email');
+    if(!validEmail(email)) return res.status(422).send("Not a valid email");
     
     // Query the database for the user
-    const [ user ] = await queryDB('users', 'get', { where: ['email'] }, [email]);
-    if(!user) return res.status(422).send('Email not found');
+    const { rows: [ user ] } = await pool.query("SELECT * FROM users WHERE email = $1", [email]);
+    // Create a new user if they don't exist
+    if(!user) {
+        await pool.query("INSERT INTO users (email) VALUES ($1)", [email]);
+    }
 
-    // Verify the attempted password
-    const validPassword = await argon2.verify(user.password, passwordAttempt);
-    if(!validPassword) return res.status(422).send('Invalid password');
+    // Generate a 5 digit random verification code
+    const verificationCode = Array.from({ length: 5 }, () => Math.floor(Math.random() * 10));
 
-    // Add the user's notification token to the database if it isn't already there
-    await postNotificationToken(user.id, notificationToken);
+    // Update the user's cell to include reset token & expiration date
+    await pool.query(
+        "UPDATE users SET verification_code = $1, verification_code_expiration = $2 WHERE email = $3",
+        [verificationCode.join(""), new Date(Date.now() + 3600000), email]
+    );
+
+    // Send automated email to user with reset button
+    let mailOptions = {
+        to: email,
+        from: 'noreply.ayoda.app@gmail.com',
+        subject: 'Account Sign In',
+        html: `<h2>Your sign in token is</h2><h1>[ ${verificationCode.join(" ")} ]<h1>`
+    };
+    await ayodaTransporter.sendMail(mailOptions);
+    return res.status(200).send("Verification code sent!");
+};
+
+// Verify a user's email
+// POST /verify
+const verify = async (req, res) => {
+    const {
+        email,
+        verificationCode: attemptedVerificationCode
+    } = req.body;
+
+    // Get the user associated with the token
+    const { rows: [ user ] } = await pool.query("SELECT * FROM users WHERE email = $1", [email]);
+    if (!user) {
+        return res.status(400).send("No user found with this email");
+    }
+
+    // Check that the token is valid & hasn't expired
+    const verificationCode = user.verification_code;
+    const verificationCodeExpiration = user.verification_code_expiration;
+    var now = new Date(Date.now());
+    if(verificationCode !== attemptedVerificationCode){
+        return res.status(400).send("Invalid verification code");
+    }
+    if (verificationCodeExpiration > now) {
+        return res.status(400).send("Verification code expired");
+    }
 
     // Generate JWT token and attach to response header
     const token = jwt.sign({ userId: user.id }, process.env.TOKEN_KEY);
 
-    // Remove password and other irrelevant information before sending back to client
-    const {
-        password,
-        email_verified,
-        timestamp,
-        ...rest
-    } = user;
-
-    return res.status(200).set('authorization', `Bearer ${token}`).send(rest);
-};
-
-// Remove relevant information from the database when a user loggs out
-// POST /logout
-const logout = async (req, res) => {
-    const {
-        notificationToken=null
-    } = req.body;
-
-    await deleteNotificationToken(notificationToken);
-
-    return res.status(200).send('Logged out');
+    return res.status(200).set('authorization', `Bearer ${token}`).send(user);
 };
 
 // Check if the given parameter is valid
@@ -100,119 +109,28 @@ const validateParameter = async (req, res) => {
     return res.status(200).send('Valid parameter');
 };
 
-// Send an email with a password reset link
-// PUT /resetPassword
-const sendResetPasswordEmail = async (req, res) => {
+// Populate an empty user cell with it's information
+// POST /register/:userId
+const register = async (req, res) => {
+    const { userId } = req.params;
     const {
-        email
+        firstName,
+        lastName,
+        username,
+        dob
     } = req.body;
 
-    // Generate a random reset token
-    const buf = crypto.randomBytes(20);
-    const token = buf.toString('hex');
+    await pool.query(
+        "UPDATE users SET first_name = $1, last_name = $2, username = $3, dob = $4 WHERE id = $5",
+        [firstName, lastName, username, dob, userId]
+    );
 
-    // Find he user and set the info to the databse
-
-    // Get user by email
-    const [ user ] = await queryDB('users', 'get', { where: ['email'] }, [email]);
-    if (!user) {
-        return res.status(400).send('Email not found');
-    }
-
-    // Update the user's cell to include reset token & expiration date
-    await queryDB('users', 'put', {
-        params: [
-            'reset_password_token',
-            'reset_password_expiration'
-        ],
-        where: ['email']
-    }, [
-        token,
-        new Date(Date.now() + 3600000),
-        email
-    ]);
-
-    // Send automated email to user with reset button
-    let mailOptions = {
-        to: email,
-        from: 'noreply@protosapps.com',
-        subject: 'Password Reset',
-        html: resetPasswordTemplate(req.headers.host, token)
-    };
-    await sendAutomatedEmail(mailOptions);
-
-    return res.status(200).send('Password reset, email sent');
-};
-
-// Reset a user's password given a reset token
-// PUT /reset/:id
-const resetPassword = async (req, res) => {
-    const {
-        token
-    } = req.params;
-
-    const {
-        password,
-        confirmPassword
-    } = req.body;
-
-    // Get the user associated with the token
-    const [ user ] = await queryDB('users', 'get', { where: ['reset_password_token'] }, [token]);
-    if (!user) {
-        return res.status(400).send('Invalid reset token');
-    }
-
-    // Check that the token is valid & hasn't expired
-    const expirationDate = user.reset_password_expiration;
-    var now = new Date(Date.now());
-    if (expirationDate > now) {
-        return res.status(400).send('Token expired');
-    }
-
-    // Confirm that passwords were given, match, and are different from the original password
-    const hashedPassword = await argon2.hash(password);
-    if (!password || !confirmPassword) {
-        return res.status(400).send('Must provide password & confirm password');
-    }
-    else if (await argon2.verify(user.password, password)) {
-        return res.status(400).send('New password must be different from old password');
-    }
-    else if (password !== confirmPassword) {
-        return res.status(400).send('Passwords do not match.');
-    }
-
-    // Update the user's password & remove the reset token & expiriation date
-    await pool.query('UPDATE users SET password = $1, reset_password_token = NULL, reset_password_expiration = NULL WHERE email = $2', [hashedPassword, user.email]);
-
-    // Send confirmation email
-    let mailOptions = {
-        to: user.email,
-        from: process.env.NOREPLY_EMAIL_ADDRESS,
-        subject: 'Password Reset Confirmation',
-        html: resetPasswordConfirmationTemplate()
-    };
-    await sendAutomatedEmail(mailOptions);
-
-    // Return success message
-    return res.status(200).send('Password reset!');
-};
-
-// GET /reset/:token
-const renderResetPassword = async (req, res) => {
-    const {
-        token
-    } = req.params;
-    const [ user ] = await queryDB('users', 'get', { where: ['reset_password_token'] }, [token]);
-    const expired = !user;
-    
-    return res.render('passwordReset', { token, expired });
+    return res.status(200).send("User registered!");
 };
 
 module.exports = {
     login,
-    logout,
+    verify,
     validateParameter,
-    sendResetPasswordEmail,
-    resetPassword,
-    renderResetPassword
+    register
 };
