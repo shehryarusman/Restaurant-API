@@ -26,7 +26,6 @@ router.get('/help', (req, res) => {
 router.get('/documentation', (req, res) => {
     res.sendFile('documentation/index.html');
 });
-
 router.get('/health', (req, res) => {
     res.status(200).send('OK');
 });
@@ -44,6 +43,7 @@ router.get('/dbHealthCheck', async (req, res) => {
         res.status(500).send(`Database connection failed: ${error.message}`);
     }
 });
+
 router.use(getTargetResource);
 router.use('/auth', authRouter);
 router.use('/users', usersRouter);
