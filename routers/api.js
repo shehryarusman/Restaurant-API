@@ -42,7 +42,7 @@ router.get('/dbHealthCheck', async (req, res) => {
       // If connection is successful, respond with success
       res.status(200).send('Database connection successful');
     } catch (error) {
-      res.status(500).send('Database connection failed');
+        res.status(500).send(`Database connection failed: ${error.message}`);
     }
 });
 
