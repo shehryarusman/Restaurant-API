@@ -12,6 +12,9 @@ const recsRouter = require('./api/recs');
 const requireAuth = require('../middleware/requireAuth');
 const getTargetResource = require('../middleware/getTargetResource');
 
+// Testing
+const pool = require('../queries/db');
+
 const router = Router();
 
 router.get('/', requireAuth, (req, res) => {
@@ -22,6 +25,24 @@ router.get('/help', (req, res) => {
 });
 router.get('/documentation', (req, res) => {
     res.sendFile('documentation/index.html');
+});
+
+router.get('/health', (req, res) => {
+    res.status(200).send('OK');
+});
+router.get('/dbHealthCheck', async (req, res) => {
+    try {
+      // Attempt to connect to the database
+      const client = await pool.connect();
+  
+      // Release the client back to the pool
+      client.release();
+  
+      // If connection is successful, respond with success
+      res.status(200).send('Database connection successful');
+    } catch (error) {
+        res.status(500).send(`Database connection failed: ${error.message}`);
+    }
 });
 router.use(getTargetResource);
 router.use('/auth', authRouter);
