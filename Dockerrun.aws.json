@@ -32,11 +32,11 @@
     },
     {
       "Name": "AWS_BUCKET_NAME",
-      "Value": ""
+      "Value": "restaurant-app-images-bucket"
     },
     {
       "Name": "AWS_BUCKET_REGION",
-      "Value": ""
+      "Value": "us-east-1"
     }
   ]
 }
