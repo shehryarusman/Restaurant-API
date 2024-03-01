@@ -27,7 +27,21 @@ router.get('/documentation', (req, res) => {
 });
 router.get('/health', (req, res) => {
     res.status(200).send('OK');
-  });
+});
+router.get('/dbHealthCheck', async (req, res) => {
+    try {
+      // Attempt to connect to the database
+      const client = await pool.connect();
+  
+      // Release the client back to the pool
+      client.release();
+  
+      // If connection is successful, respond with success
+      res.status(200).send('Database connection successful');
+    } catch (error) {
+      res.status(500).send('Database connection failed');
+    }
+});
 
 router.use(getTargetResource);
 router.use('/auth', authRouter);
