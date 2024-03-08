@@ -1,7 +1,7 @@
 const path = require('path');
 
 const CONSTANTS = {
-    PORT: process.env.PORT || 8080,
+    PORT: process.env.PORT || 80,
     API_ENDPOINT: 'https://api.RestaurantApp-Api.social',
     getRootDirectory: () => {
         // Debugging: Log the __dirname and calculated root directory
