@@ -83,8 +83,9 @@ const register = async (req, res) => {
     } = req.body;
 
     // User Validation
-    if(userValidationIssue = userValidationIssue(req.body) !== null)
-        return res.status(403).send(userValidationIssue);
+    const userValidationIssueMessages = userValidationIssue(req.body);
+    if(userValidationIssueMessages !== null)
+        return res.status(403).send(userValidationIssueMessages);
 
     await pool.query(
         "UPDATE users SET first_name = $1, last_name = $2, username = $3, dob = $4 WHERE id = $5",
