@@ -14,7 +14,7 @@ const createPost = async (req, res) => {
     const [ newPost ] = await queryDB('posts', 'post', { params: ['text', 'author_id']}, [text, req.user.id]);
 
     // Store the posts's images on AWS, and store keys to the database
-    await uploadImages(files, "post_images", newPost);
+    await uploadImages(files, newPost);
 
     return res.status(201).send('Post created');
 }
@@ -45,7 +45,7 @@ const updatePost = async (req, res) => {
     await deleteImages(postId);
 
     // Upload new images to AWS & store keys to the database associated with this post
-    await uploadImages(files, "post_images", post);
+    await uploadImages(files, post);
 
     return res.status(200).send('Post updated');
 }

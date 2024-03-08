@@ -77,7 +77,7 @@ const updateUser = async (req, res) => {
 
     let newProfilePictureKey = null;
     if(file) {
-        const { Key } = await uploadFile(file, "profile_pictures");
+        const { Key } = await uploadFile(file);
         // Remove temporary file from uploads directory
         await unlinkFile(file.path);
         newProfilePictureKey = Key;
