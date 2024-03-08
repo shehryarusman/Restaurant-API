@@ -8,7 +8,6 @@ const requireAuth = require('../../middleware/requireAuth');
 const {
     queryUsers,
     getUserById,
-    createUser,
     updateUser,
     deleteUser,
     getConnections,
@@ -18,7 +17,6 @@ const {
 
 router.get('/', requireAuth, queryUsers);
 router.get('/:id', requireAuth, getUserById);
-router.post('/', createUser);
 router.put('/', requireAuth, upload.single('image'), updateUser);
 router.delete('/', requireAuth, deleteUser);
 router.get('/:id/connections', requireAuth, getConnections)

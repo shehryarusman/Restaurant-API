@@ -15,30 +15,41 @@ const validUsername = (username) => {
 };
 
 // Takes in a user object and checks that all fields are valid
-const invalidUser = (user) => {
+const userValidationIssue = (user) => {
     const {
         email,
         username,
+        firstName,
+        lastName,
         dob
     } = user;
 
-    // EMAIL
-    // Check that email is formatted properly if an email is given
-    if(email && !validEmail(email)) return 'Not a valid email';
-
-    // USERNAME
-    // Check that username is formatted properly if a username is given
-    if(username && !validUsername(username)) return 'Not a valid username';
-
-    // DATE OF BIRTH
-    // Confirm that the user is at least 13 years old if a date of birth is given
-    if (dob && calculateAge(new Date(dob)) < 13) return 'Must be at least 13 years old to create an account';
-
-    return null;
+    return (
+        !email
+            ? "No email provided" :
+        !validEmail(email)
+            ? "Not a valid email" : 
+        !username
+            ? "No username provided" :
+        !validUsername(username)
+            ? "Not a valid username" :
+        !dob
+            ? "No date of birth provided" :
+        calculateAge(new Date(dob)) < 13
+            ? "Must be at least 13 years old to create an account" :
+        !firstName || firstName.length == 0
+            ? "No first name provided" :
+        firstName.length > 255
+            ? "First name too long" :
+        !lastName || lastName.length == 0
+            ? "No last name provided" :
+        lastName.length > 255
+            ? "last name too long" : null
+    );
 };
 
 module.exports = {
     validEmail,
     validUsername,
-    invalidUser
+    userValidationIssue
 };

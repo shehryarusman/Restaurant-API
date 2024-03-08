@@ -1,22 +1,14 @@
 const jwt = require('jsonwebtoken');
 const queryDB = require('../queries/queryDB');
 const pool = require('../queries/db');
-const { validEmail, validUsername } = require('../helpers/validators');
+const { userValidationIssue, validEmail, validUsername } = require('../helpers/validators');
 // Email Automation
 const { ayodaTransporter } = require('../helpers/email');
 
-// Get a authentication token given email and password
-// POST /login
+// Set a verification code to the provided email
+// POST /login/:email
 const login = async (req, res) => {
-    const {
-        email=null
-    } = req.body;
-
-    // Confirm that email isn't empty
-    switch (null){
-        case email:
-            return res.status(422).send("Must provide email");
-    }
+    const { email } = req.params;
 
     // Check that email is formatted properly
     if(!validEmail(email)) return res.status(422).send("Not a valid email");
@@ -79,36 +71,6 @@ const verify = async (req, res) => {
     return res.status(200).set('authorization', `Bearer ${token}`).send(user);
 };
 
-// Check if the given parameter is valid
-// GET /validateParameter/:parameter/:value
-const validateParameter = async (req, res) => {
-    const {
-        parameter,
-        value
-    } = req.params;
-
-    switch(parameter) {
-        case 'email':
-            // Check that email is formatted properly
-            if(!validEmail(value)) return res.status(400).send('Not a valid email');
-            
-            // Check that email is not already in use
-            const [ emailTaken ] = await queryDB('users', 'get', { where: ['email'] }, [value]);
-            if(emailTaken) return res.status(400).send('Email already in use');
-            break;
-        case 'username':
-            // Check that username is formatted properly
-            if(!validUsername(value)) return res.status(400).send('Not a valid username');
-
-            // Check that username is not already in use
-            const [ usernameTaken ] = await queryDB('users', 'get', { where: ['username'] }, [value]);
-            if(usernameTaken) return res.status(400).send('Username already in use');
-            break;
-    };
-
-    return res.status(200).send('Valid parameter');
-};
-
 // Populate an empty user cell with it's information
 // POST /register/:userId
 const register = async (req, res) => {
@@ -119,6 +81,10 @@ const register = async (req, res) => {
         username,
         dob
     } = req.body;
+
+    // User Validation
+    if(userValidationIssue = userValidationIssue(req.body) !== null)
+        return res.status(403).send(userValidationIssue);
 
     await pool.query(
         "UPDATE users SET first_name = $1, last_name = $2, username = $3, dob = $4 WHERE id = $5",
@@ -131,6 +97,5 @@ const register = async (req, res) => {
 module.exports = {
     login,
     verify,
-    validateParameter,
     register
 };

@@ -8,7 +8,7 @@ const queryDB = require('../queries/queryDB');
 const { uploadFile, unlinkFile, deleteFile } = require('../aws/s3');
 // Helpers
 const getUsers = require('../queries/getters/getUsers');
-const { invalidUser } = require('../helpers/validators');
+const { userValidationIssue } = require('../helpers/validators');
 const { isFollower, isFollowee } = require('../queries/getters/helpers/followStatus');
 const followUser = require('../queries/putters/followUser');
 const getUserConnections = require('../queries/getters/getConnections');
@@ -38,63 +38,6 @@ const getUserById = async (req, res) => {
     }
 }
 
-const createUser = async (req, res) => {
-    // Get user information
-    const {
-        email=null,
-        username=null,
-        dob=null,
-        first_name=null,
-        last_name=null,
-        password=null
-    } = req.body;
-
-    // Check that all required fields are present
-    switch (null) {
-        case email:
-            return res.status(422).send('Must provide an email');
-        case username:
-            return res.status(422).send('Must provide a username');
-        case dob:
-            return res.status(422).send('Must provide a date of birth');
-        case first_name:
-            return res.status(422).send('Must provide a first name');
-        case last_name:
-            return res.status(422).send('Must provide a last name');
-        case password:
-            return res.status(422).send('Must provide a password');
-    }
-
-    // Check that all the user's information is formatted correctly
-    const invalidUserError = invalidUser(req.body);
-    if(invalidUserError) return res.status(422).send(invalidUserError);
-
-    // Check that email isn't already in use
-    const [ emailTaken ] = await queryDB('users', 'get', { where: ['email'] }, [email]);
-    if(emailTaken) return res.status(422).send('Email already in use');
-
-    // Check that username isn't already in use
-    const [ usernameTaken ] = await queryDB('users', 'get', { where: ['username'] }, [username]);
-    if(usernameTaken) return res.status(422).send('Username already in use');
-
-    // Hash the given password before inserting it into the database
-    const hashedPassword = await argon2.hash(password);
-
-    // Create the user
-    await queryDB('users', 'post',
-        { params: ['email', 'username', 'dob', 'first_name', 'last_name', 'password'] },
-        [ email, username, dob, first_name, last_name, hashedPassword ]
-    );
-
-    // Get the newly created user
-    const [ user ] = await queryDB('users', 'get', { where: ['email'] }, [email]);
-
-    // Generate JWT token and attach to response header
-    const token = jwt.sign({ userId: user.id }, process.env.TOKEN_KEY);
-
-    return res.status(201).set('authorization', `Bearer ${token}`).send(user);
-}
-
 const updateUser = async (req, res) => {
     const { file } = req;
 
@@ -117,8 +60,8 @@ const updateUser = async (req, res) => {
     const changedUsername = username !== req.user.username;
 
     // Checks that the user's information is valid
-    const invalidUserError = invalidUser(req.body);
-    if(invalidUserError) return res.status(400).send(invalidUserError);
+    const userValidationIssueMessage = userValidationIssue(req.body);
+    if(userValidationIssueMessage) return res.status(400).send(userValidationIssueMessage);
 
     // If the user changed their email or username, check that the new one's not already in use
     switch(true) {
@@ -134,7 +77,7 @@ const updateUser = async (req, res) => {
 
     let newProfilePictureKey = null;
     if(file) {
-        const { Key } = await uploadFile(file);
+        const { Key } = await uploadFile(file, "profile_pictures");
         // Remove temporary file from uploads directory
         await unlinkFile(file.path);
         newProfilePictureKey = Key;
@@ -275,7 +218,6 @@ const followUserById = async (req, res) => {
 module.exports = {
     queryUsers,
     getUserById,
-    createUser,
     updateUser,
     deleteUser,
     getConnections,
