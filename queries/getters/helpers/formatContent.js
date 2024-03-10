@@ -1,5 +1,6 @@
 // Add author object & like/dislike status to content
 const e = require('express');
+const pool = require('../../db');
 const queryDB = require('../../queryDB');
 const formatUser = require('./formatUser');
 
@@ -14,6 +15,16 @@ const format = async (content, user) => {
         { where: ['user_id', 'content_id', 'like_content'] },
         [user.id, content.id, false]
     );
+
+    // Replace dish & restaurant id with name
+    const {rows: [ dish ] } = await pool.query("SELECT * FROM dishes WHERE id = $1", [content.dish_id]);
+    if(dish){
+        content.dish_name = dish.name;
+    }
+    const {rows: [ restaurant ] } = await pool.query("SELECT * FROM restaurants WHERE id = $1", [content.restaurant_id]);
+    if(dish){
+        content.restaurant_name = restaurant.name;
+    }
 
     // Add like count if it's the current user's post
     if (content.author_id === user.id){
